@@ -1,0 +1,9 @@
+venv/
+*.png
+*.aux
+*.log
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.toc
+*.out

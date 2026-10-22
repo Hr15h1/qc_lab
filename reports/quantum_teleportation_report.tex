@@ -1,0 +1,174 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{titlesec}
+\usepackage{minted}
+
+% Format sections to match the reference document style
+\titleformat{\section}
+  {\normalfont\Large\bfseries}{\thesection.}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\begin{document}
+
+\begin{center}
+    {\Large \textbf{Quantum Simulation Lab}} \\
+    \vspace{0.8cm}
+    {\Large Experiment I} \\
+    \vspace{0.2cm}
+    {\Large \textbf{Quantum Teleportation}} \\
+\end{center}
+
+\vspace{0.5cm}
+\noindent Name: Hrishikesh M Jayakrishnan \hfill ID: SC26D054
+\vspace{1em}
+\hrule
+
+\vspace{1em}
+\section{Aim}
+\begin{enumerate}
+    \item To implement and demonstrate the quantum teleportation protocol using a quantum circuit.
+    \item To verify the successful transfer of an arbitrary quantum state from a sender to a receiver using the Qiskit framework.
+\end{enumerate}
+
+\section{Resources used}
+\begin{itemize}
+    \item Python
+    \item Qiskit 
+    \item Jupyter Notebook environment
+\end{itemize}
+
+\section{Theoretical Background}
+\subsection{Quantum Teleportation}
+Quantum teleportation is a process by which quantum information (e.g., the exact state of an atom or photon) can be transmitted from one location to another, with the help of classical communication and previously shared quantum entanglement between the sending and receiving locations.
+
+The protocol uses three qubits:
+\begin{itemize}
+    \item \textbf{Qubit C:} The state to be teleported, $|\psi\rangle = \alpha|0\rangle + \beta|1\rangle$.
+    \item \textbf{Qubit A} and \textbf{Qubit B:} An entangled pair of qubits (Bell state) shared between the sender (Alice) and the receiver (Bob).
+\end{itemize}
+\newpage
+\subsection{Protocol Steps}
+\begin{enumerate}
+    \item \textbf{Entanglement Generation:} A Bell state is created between Qubit A and Qubit B.
+    \item \textbf{Bell State Measurement:} Alice performs a CNOT gate on Qubit A controlled by Qubit C, followed by a Hadamard gate on Qubit C. She then measures both Qubits C and A.
+    \item \textbf{Classical Communication:} Alice sends the two classical bits obtained from her measurements to Bob.
+    \item \textbf{Conditional Operations:} Based on the classical bits received, Bob applies appropriate Pauli gates (X and/or Z) to his Qubit B to recover the original state $|\psi\rangle$.
+\end{enumerate}
+
+\section{Quantum circuit}
+\subsection{Circuit Setup}
+The experiment is conducted following these steps in the Qiskit framework:
+\begin{enumerate}
+    \item Initialize the quantum circuit with 3 quantum registers and 2 classical registers for Alice's measurements.
+    \item Prepare the initial random quantum state $|\psi\rangle$ on the first qubit.
+    \item Apply a Hadamard gate and a CNOT gate to the second and third qubits to create the entangled Bell pair.
+    \item Entangle the unknown state $|\psi\rangle$ to the first qubit and apply hadamard gate to it.
+    \item Construct the teleportation protocol by applying Alice's operations and Bob's conditional operations based on measurement outcomes.
+\end{enumerate}
+
+\begin{figure}[h!]
+    \centering
+    % Remove the \rule line below and uncomment the \includegraphics line to insert your image
+    \includegraphics[width=0.8\textwidth]{quantum_teleportation.png}
+    % \rule{0.8\textwidth}{0.3\textwidth} % This creates a placeholder box
+    \caption{Quantum Teleportation Circuit}
+\end{figure}
+\newpage
+\section{Measurement Results and Analysis}
+The circuit is executed on the Qiskit Aer Simulator for 10000 shots, and the results obtained are shown in the figures below.
+
+\begin{figure}[h!]
+    \centering
+    % Remove the \rule line below and uncomment the \includegraphics line to insert your image
+    \includegraphics[width=0.5\textwidth]{measurement_01.png}
+    % \rule{0.5\textwidth}{0.3\textwidth} % This creates a placeholder box
+    \caption{Measurement results for the quantum teleportation protocol}
+\end{figure}
+The results show two clear groups, with \(000\!-\!011\) occurring much more frequently than \(100\!-\!111\) (~21.5\%), indicating Bob's final measurement is in state \(|0\rangle\).
+
+\begin{figure}[h!]
+    \centering
+    % Remove the \rule line below and uncomment the \includegraphics line to insert your image
+    \includegraphics[width=0.5\textwidth]{receiver_measurement.png}
+    % \rule{0.5\textwidth}{0.3\textwidth} % This creates a placeholder box
+    \caption{Probabilities of Bob's final state}
+\end{figure}
+The receiver measurement shows probabilities of approximately \(P(0)\approx 0.785\) and \(P(1)\approx 0.215\), indicating that Bob's teleported state is measured as \(|0\rangle\) in about 78.5\% of the shots and \(|1\rangle\) in about 21.5\% of the shots.
+
+\begin{figure}[h!]
+    \centering
+    % Remove the \rule line below and uncomment the \includegraphics line to insert your image
+    \includegraphics[width=0.5\textwidth]{psi_probs.png}
+    % \rule{0.5\textwidth}{0.3\textwidth} % This creates a placeholder box
+    \caption{Probabilities of the initial state $|\psi\rangle$}
+\end{figure}
+\newpage
+The input-state measurement shows probabilities of approximately \(P(0)\approx 0.79\) and \(P(1)\approx 0.21\), indicating that the original \(|\psi\rangle\) state is measured as \(|0\rangle\) in about 79\% of the shots and \(|1\rangle\) in about 21\%.
+
+\section{Conclusion}
+The quantum teleportation protocol was successfully implemented. The visual and numerical results confirm that the arbitrary state \(|\psi\rangle\) was accurately transferred from the source qubit to the target qubit.
+
+\newpage
+\section{Appendix}
+\subsection{Python Code}
+\begin{minted}[fontsize=\small]{python}
+from qiskit import QuantumRegister, ClassicalRegister, QuantumCircuit
+from qiskit.quantum_info.states.random import random_statevector
+from qiskit.circuit.library import Initialize
+from qiskit.quantum_info import Statevector
+from qiskit.visualization import plot_histogram
+from qiskit_aer import AerSimulator
+import numpy as np
+
+psi = QuantumRegister(1, "psi")
+cl_psi = ClassicalRegister(1, "cl_psi")
+bell = QuantumRegister(2, "bell")
+cl_bell_01 = ClassicalRegister(1, "cl_bell_01")
+cl_bell_02 = ClassicalRegister(1, "cl_bell_02")
+qc = QuantumCircuit(psi, cl_psi, bell, cl_bell_01, cl_bell_02)
+qc.draw("mpl")
+
+random_vector = random_statevector(2)
+probs = np.abs(random_vector)**2
+probs = {0: probs[0], 1: probs[1]}
+state = Initialize(random_vector)
+qc.append(state, psi)
+
+qc.h(bell[0])
+qc.cx(bell[0], bell[1])
+qc.barrier()
+qc.cx(psi, bell[0])
+qc.h(psi)
+qc.barrier()
+qt_sv = Statevector.from_circuit(qc)
+qc.measure(bell[0], cl_bell_01)
+qc.measure(psi, cl_psi)
+qc.barrier()
+
+with qc.if_test((cl_psi, True)):
+qc.z(bell[1])
+
+with qc.if_test((cl_bell_01, True)):
+qc.x(bell[1])
+qc.measure(bell[1], cl_bell_02)
+qc.draw("mpl")
+
+sim = AerSimulator()
+result = sim.run(qc, shots = 1000).result()
+
+plot_histogram(result.get_counts())
+
+from collections import Counter
+receiver_count = Counter()
+
+for k, v in result.get_counts().items():
+receiver_count[k[0]] += v/1000
+
+plot_histogram(receiver_count)
+plot_histogram(probs)
+\end{minted}
+\end{document}
