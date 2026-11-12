@@ -1,0 +1,191 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{titlesec}
+\usepackage{minted}
+
+% Format sections to match the reference document style
+\titleformat{\section}
+  {\normalfont\Large\bfseries}{\thesection.}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\begin{document}
+
+\begin{center}
+    {\Large \textbf{Quantum Simulation Lab}} \\
+    \vspace{0.8cm}
+    {\Large Experiment III} \\
+    \vspace{0.2cm}
+    {\Large \textbf{Deutsch Josza Algorithm}} \\
+\end{center}
+
+\vspace{0.5cm}
+\noindent Name: Hrishikesh M Jayakrishnan \hfill ID: SC26D054
+\vspace{1em}
+\hrule
+
+\vspace{1em}
+\section{Aim}
+\begin{enumerate}
+    \item To implement and demonstrate the Deutsch Josza algorithm using a quantum circuit.
+    \item To verify the correctness of the Deutsch Josza algorithm in determining whether a given function is constant or balanced using the Qiskit framework.
+\end{enumerate}
+\section{Resources used}
+\begin{itemize}
+    \item Python
+    \item Qiskit 
+    \item Jupyter Notebook environment
+\end{itemize}
+
+\section{Theoretical Background}
+\subsection{Deutsch Josza Algorithm}
+The Deutsch Josza algorithm is a quantum algorithm that solves the problem of determining whether a given function \( f: \{0, 1\}^n \rightarrow \{0, 1\} \) is constant (the same output for all inputs) or balanced (outputs 0 for half of the inputs and 1 for the other half). The algorithm achieves this with a single evaluation of the function, demonstrating an exponential speedup over classical algorithms that require multiple evaluations.
+\newpage
+\subsection{Steps}
+Below are the steps involved in implementing the Deutsch-Josza algorithm for a given function \( f: \{0, 1\} \rightarrow \{0, 1\} \):
+\begin{enumerate}
+    \item Initialize a quantum circuit with \( n + 1 \) qubits, where \( n \) is the number of input bits for the function \( f \). The first \( n \) qubits are initialized to \( |0\rangle \), and the last qubit is initialized to \( |1\rangle \).
+    \item Apply a Hadamard gate to all qubits. This creates a superposition of all possible input states for the function.
+    \item Apply the oracle \( U_f \) corresponding to the function \( f \). The oracle flips the sign of the amplitude of the state corresponding to the input that maps to 1 under \( f \).
+    \item Apply a Hadamard gate to the first \( n \) qubits again. This transforms the state back into a basis where measurement can reveal information about the function.
+    \item Measure the first \( n \) qubits. If all measured bits are 0, then the function is constant; otherwise, it is balanced.
+\end{enumerate}
+
+
+\section{Quantum circuit}
+The experiment is conducted following these steps in the Qiskit framework:
+\begin{enumerate}
+    \item Initialize a quantum circuit with \( n + 1 \) qubits and \( n \) classical bits for measurement.
+    \item Apply Hadamard gates to all qubits to create a superposition of states.
+    \item Apply the oracle \( U_f \) corresponding to the function \( f \) to the qubits. The oracle encodes the function's output into the phase of the quantum state.
+    \item Apply Hadamard gates to the first \( n \) qubits again to interfere the amplitudes and extract information about the function.
+    \item Measure the first \( n \) qubits.
+\end{enumerate}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1.02\textwidth]{../deutsch_josza_algorithm.png}
+    \caption{Quantum circuit for the Deutsch-Josza algorithm}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.2\textwidth]{../deutsch_josza_constant.png}
+    \caption{Quantum circuit acting as an oracle for a constant function}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1.02\textwidth]{../deutsch_josza_balanced.png}
+    \caption{Quantum circuit acting as an oracle for a balanced function}
+\end{figure}
+
+\newpage
+\section{Measurement Results and Analysis}
+The circuit is executed on a quantum simulator for a single shot, and the measurement results are obtained. The results indicate whether the function is constant or balanced based on the measurement of the first qubit.
+\begin{figure}[h!]
+    \centering
+    % Remove the \rule line below and uncomment the \includegraphics line to insert your image
+    \includegraphics[width=0.5\textwidth]{../deutsch_josza_alg_measurement.png}
+    % \rule{0.5\textwidth}{0.3\textwidth} % This creates a placeholder box
+    \caption{Measurement result for a constant function}
+\end{figure}
+\begin{figure}[h!]
+    \centering
+    % Remove the \rule line below and uncomment the \includegraphics line to insert your image
+    \includegraphics[width=0.5\textwidth]{../deutsch_josza_balanced_measurement.png}
+    % \rule{0.5\textwidth}{0.3\textwidth} % This creates a placeholder box
+    \caption{Measurement result for a balanced function \( f(x) = x \) for 50\% of the inputs}
+\end{figure}
+\newpage
+The measurement results show that the circuit correctly identifies the nature of the function based on the measurement of the first qubit. If the result is \( |0\rangle \), the function is constant; if the result is \( |1\rangle \), the function is balanced, in a single evaluation of the function, demonstrating the efficiency of the Deutsch-Josza algorithm over classical methods.
+
+\section{Conclusion}
+This experiment implements the Deutsch-Josza algorithm using a quantum circuit in the Qiskit framework. The results obtained from the quantum simulator confirm that the algorithm can determine whether a function is constant or balanced with a single evaluation
+
+\newpage
+\section{Appendix}
+\subsection{Python Code}
+\begin{minted}[fontsize=\small]{python}
+from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister, transpile
+from qiskit_aer import AerSimulator
+from qiskit.visualization import plot_histogram
+import numpy as np
+
+def flip_zero_bits(bit_string):
+    for qubit, bit in enumerate(reversed(bit_string)):
+        if bit == "0":
+            oracle.x(qubit)
+
+def create_oracle(n, function_type="random", seed=None):
+    if n < 1:
+        raise ValueError("n must be at least 1")
+    rng = np.random.default_rng(seed)
+    oracle = QuantumCircuit(n + 1, name="Oracle")
+    if function_type == "random":
+        function_type = rng.choice(["constant", "balanced"])
+    if function_type not in ("constant", "balanced"):
+        raise ValueError("Choose 'constant', 'balanced', or 'random'")
+    if rng.integers(0, 2):
+        oracle.x(n)
+    if function_type == "constant":
+        return oracle, function_type
+    on_states = rng.choice(
+        2**n,
+        size=2**(n - 1),
+        replace=False
+    )
+    for state in on_states:
+        bit_string = f"{state:0{n}b}"
+        flip_zero_bits(bit_string)
+        oracle.mcx(list(range(n)), n)
+        flip_zero_bits(bit_string)
+    return oracle, function_type
+
+n = 4
+
+input_qubits = QuantumRegister(n, name='input')
+output_qubit = QuantumRegister(1, name='output')
+
+cr = ClassicalRegister(n, name='c')
+qc = QuantumCircuit(input_qubits, output_qubit, cr)
+qc.draw(output='mpl')
+plt.show()
+
+qc.h(input_qubits)
+qc.x(output_qubit)
+qc.h(output_qubit)
+qc.barrier()
+qc.draw(output='mpl')
+plt.show()
+
+oracle, actual_function_type = create_oracle(n, function_type="random")
+qc.append(oracle.decompose(), list(range(n + 1)))
+qc.barrier()
+oracle.draw("mpl")
+plt.show()
+
+qc.decompose()
+qc.draw(output='mpl')
+plt.show()
+
+qc.barrier()
+qc.h(input_qubits)
+qc.measure(input_qubits, cr)
+qc.draw("mpl")
+plt.show()
+
+print(f"Actual function type: {actual_function_type}")
+aer_sim = AerSimulator()
+transpiled_qc = transpile(qc, aer_sim)
+job = aer_sim.run(transpiled_qc, shots=1)
+result = job.result()
+counts = result.get_counts(transpiled_qc)
+plot_histogram(counts)
+plt.show()
+
+\end{minted}
+\end{document}

@@ -1,0 +1,155 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{titlesec}
+\usepackage{minted}
+
+% Format sections to match the reference document style
+\titleformat{\section}
+  {\normalfont\Large\bfseries}{\thesection.}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\begin{document}
+
+\begin{center}
+    {\Large \textbf{Quantum Simulation Lab}} \\
+    \vspace{0.8cm}
+    {\Large Experiment II} \\
+    \vspace{0.2cm}
+    {\Large \textbf{Deutsch Algorithm}} \\
+\end{center}
+
+\vspace{0.5cm}
+\noindent Name: Hrishikesh M Jayakrishnan \hfill ID: SC26D054
+\vspace{1em}
+\hrule
+
+\vspace{1em}
+\section{Aim}
+\begin{enumerate}
+    \item To implement and demonstrate the Deutsch algorithm using a quantum circuit.
+    \item To verify the correctness of the Deutsch algorithm in determining whether a given function is constant or balanced using the Qiskit framework.
+\end{enumerate}
+\section{Resources used}
+\begin{itemize}
+    \item Python
+    \item Qiskit 
+    \item Jupyter Notebook environment
+\end{itemize}
+
+\section{Theoretical Background}
+\subsection{Deutsch Algorithm}
+The Deutsch algorithm is a quantum algorithm that determines whether a given function is constant or balanced. A function is constant if it returns the same value for all inputs, and balanced if it returns 0 for half of the inputs and 1 for the other half. A classical algorithm would require atleast two evaluations of the function to determine whether it is constant or balanced, while the Deutsch algorithm can determine this with a single evaluation using quantum parallelism.
+\newpage
+\subsection{Steps}
+Below are the steps involved in implementing the Deutsch algorithm for a given function \( f: \{0, 1\} \rightarrow \{0, 1\} \):
+\begin{enumerate}
+    \item Initialize two qubits, the first qubit in the state \( |0\rangle \) and the second qubit in the state \( |1\rangle \).
+    \item Apply a Hadamard gate to both qubits to create a superposition of states.
+    \item Apply the oracle \( U_f \) corresponding to the function \( f \) to the two qubits. The oracle encodes the function's output into the phase of the quantum state.
+    \item The oracle is defined as follows: \[ U_f |x\rangle|y\rangle = |x\rangle|y \oplus f(x)\rangle \]
+    \item Apply a Hadamard gate to the first qubit to interfere the amplitudes and extract information about the function.
+    \item Measure the first qubit. If the result is \( |0\rangle \), the function is constant; if the result is \( |1\rangle \), the function is balanced.
+\end{enumerate}
+
+
+\section{Quantum circuit}
+The experiment is conducted following these steps in the Qiskit framework:
+\begin{enumerate}
+    \item Initialize the quantum circuit with two qubits and two classical bits.
+    \item Apply a Hadamard gate to the first qubit.
+    \item Apply a Pauli-X gate to the second qubit.
+    \item Apply the oracle \( U_f \) to the two qubits.
+    \item Apply a Hadamard gate to the first qubit.
+    \item Measure the first qubit.
+\end{enumerate}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1.02\textwidth]{../deutsch_algorithm.png}
+    \caption{Quantum circuit for the Deutsch algorithm}
+\end{figure}
+\newpage
+\section{Measurement Results and Analysis}
+The circuit is executed on a quantum simulator for a single shot, and the measurement results are obtained. The results indicate whether the function is constant or balanced based on the measurement of the first qubit.
+\begin{figure}[h!]
+    \centering
+    % Remove the \rule line below and uncomment the \includegraphics line to insert your image
+    \includegraphics[width=0.5\textwidth]{../constant_0.png}
+    % \rule{0.5\textwidth}{0.3\textwidth} % This creates a placeholder box
+    \caption{Measurement result for a constant function \( f(x) = 0 \)}
+\end{figure}
+\begin{figure}[h!]
+    \centering
+    % Remove the \rule line below and uncomment the \includegraphics line to insert your image
+    \includegraphics[width=0.5\textwidth]{../balanced.png}
+    % \rule{0.5\textwidth}{0.3\textwidth} % This creates a placeholder box
+    \caption{Measurement result for a balanced function \( f(x) = x \)}
+\end{figure}
+\newpage
+The measurement results show that the circuit correctly identifies the nature of the function based on the measurement of the first qubit. If the result is \( |0\rangle \), the function is constant; if the result is \( |1\rangle \), the function is balanced, in a single evaluation of the function, demonstrating the efficiency of the Deutsch algorithm over classical methods.
+
+\section{Conclusion}
+This experiment implements the Deutsch algorithm using a quantum circuit in the Qiskit framework. The results obtained from the quantum simulator confirm that the algorithm can determine whether a function is constant or balanced with a single evaluation
+
+\newpage
+\section{Appendix}
+\subsection{Python Code}
+\begin{minted}[fontsize=\small]{python}
+from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister, transpile
+from qiskit_aer import AerSimulator
+from qiskit.visualization import plot_histogram
+import matplotlib.pyplot as plt
+
+def create_oracle(function_type):
+    oracle = QuantumCircuit(2, name="Oracle")
+    if function_type == "constant_0":
+        pass
+    elif function_type == "constant_1":
+        oracle.x(1)
+    elif function_type == "balanced_same_input":
+        oracle.cx(0, 1)
+    elif function_type == "balanced_not":
+        oracle.cx(0, 1)
+        oracle.x(1)
+    return oracle
+
+x = QuantumRegister(1, "x")
+y = QuantumRegister(1, "y")
+
+cr = ClassicalRegister(1, "c")
+
+qc = QuantumCircuit(x, y, cr)
+fig = qc.draw("mpl")
+plt.show()
+
+qc.h(x)
+qc.x(y)
+qc.h(y)
+fig = qc.draw("mpl")
+plt.show()
+
+oracle = create_oracle("balanced_same_input")
+qc.append(oracle, [0, 1])
+
+fig = qc.draw('mpl')
+plt.show()
+
+qc.barrier()
+qc.h(x)
+qc.measure(x, cr)
+fig = qc.draw("mpl")
+plt.show()
+
+aer_sim = AerSimulator()
+transpiled_qc = transpile(qc, aer_sim)
+job = aer_sim.run(transpiled_qc, shots=1)
+result = job.result()
+counts = result.get_counts(transpiled_qc)
+fig = plot_histogram(counts)
+plt.show()
+\end{minted}
+\end{document}

@@ -30,8 +30,8 @@
 \vspace{1em}
 \section{Aim}
 \begin{enumerate}
-    \item To implement and demonstrate the quantum teleportation protocol using a quantum circuit.
-    \item To verify the successful transfer of an arbitrary quantum state from a sender to a receiver using the Qiskit framework.
+    \item To implement and demonstrate Quantum Fourier Transform (QFT) using the Qiskit framework.
+    \item To verify the encoding and decoding of quantum states using QFT and its inverse.
 \end{enumerate}
 
 \section{Resources used}
@@ -42,133 +42,189 @@
 \end{itemize}
 
 \section{Theoretical Background}
-\subsection{Quantum Teleportation}
-Quantum teleportation is a process by which quantum information (e.g., the exact state of an atom or photon) can be transmitted from one location to another, with the help of classical communication and previously shared quantum entanglement between the sending and receiving locations.
-
-The protocol uses three qubits:
-\begin{itemize}
-    \item \textbf{Qubit C:} The state to be teleported, $|\psi\rangle = \alpha|0\rangle + \beta|1\rangle$.
-    \item \textbf{Qubit A} and \textbf{Qubit B:} An entangled pair of qubits (Bell state) shared between the sender (Alice) and the receiver (Bob).
-\end{itemize}
+\subsection{Quantum Fourier Transform (QFT)}
+The Quantum Fourier Transform is a transformation that maps a quantum state in the computational basis to a superposition of states in the Fourier basis. That is, the Quantum Fourier Transform takes a qubit from the Z-basis to the X-basis. 
 \newpage
-\subsection{Protocol Steps}
+\subsection{Encoding Steps}
 \begin{enumerate}
-    \item \textbf{Entanglement Generation:} A Bell state is created between Qubit A and Qubit B.
-    \item \textbf{Bell State Measurement:} Alice performs a CNOT gate on Qubit A controlled by Qubit C, followed by a Hadamard gate on Qubit C. She then measures both Qubits C and A.
-    \item \textbf{Classical Communication:} Alice sends the two classical bits obtained from her measurements to Bob.
-    \item \textbf{Conditional Operations:} Based on the classical bits received, Bob applies appropriate Pauli gates (X and/or Z) to his Qubit B to recover the original state $|\psi\rangle$.
+    \item Prepare the initial quantum state \( |\psi\rangle \) on the first qubit.
+    \item Apply a Hadamard gate to the first qubit to create a superposition.
+    \item Apply controlled phase shift gates to entangle the qubits and encode the phase information.
+    \item Repeat the process for each qubit in the register, applying Hadamard and controlled phase shift gates as necessary.
+    \item Finally, apply a series of SWAP gates to reverse the order of the qubits, completing the QFT operation.
+\end{enumerate}
+
+\subsection{Decoding Steps}
+\begin{enumerate}
+    \item Apply a series of SWAP gates to reverse the order of the qubits, preparing for the inverse QFT.
+    \item For each qubit, apply controlled phase shift gates in reverse order to disentangle the qubits and decode the phase information.
+    \item Apply a Hadamard gate to each qubit to return them to the computational basis.
+    \item Measure the qubits to obtain the final state, which should match the original state \( |\psi\rangle \) if the encoding and decoding were successful.
 \end{enumerate}
 
 \section{Quantum circuit}
-\subsection{Circuit Setup}
+\subsection{Encoding Circuit Setup}
 The experiment is conducted following these steps in the Qiskit framework:
 \begin{enumerate}
-    \item Initialize the quantum circuit with 3 quantum registers and 2 classical registers for Alice's measurements.
-    \item Prepare the initial random quantum state $|\psi\rangle$ on the first qubit.
-    \item Apply a Hadamard gate and a CNOT gate to the second and third qubits to create the entangled Bell pair.
-    \item Entangle the unknown state $|\psi\rangle$ to the first qubit and apply hadamard gate to it.
-    \item Construct the teleportation protocol by applying Alice's operations and Bob's conditional operations based on measurement outcomes.
+    \item Initialize a quantum circuit with the required number of qubits and classical bits.
+    \item Prepare the initial state.
+    \item Apply a series of Hadamard and controlled phase shift gates to perform the QFT and obtain the encoded state.
+    \item Copy the encoded state to another set of qubits for decoding.
+    \item Measure the qubits to obtain the encoded state.
+    \item Apply the inverse QFT to the copied qubits to decode the state.
+    \item Measure the qubits and record the results.
 \end{enumerate}
 
-% \begin{figure}[h!]
-%     \centering
-%     % Remove the \rule line below and uncomment the \includegraphics line to insert your image
-%     % \includegraphics[width=0.8\textwidth]{quantum_teleportation.png}
-%     % \rule{0.8\textwidth}{0.3\textwidth} % This creates a placeholder box
-%     \caption{Quantum Teleportation Circuit}
-% \end{figure}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1.02\textwidth]{../qft_circuit.png}
+    \caption{Quantum Fourier Transform Circuit for encoding}
+\end{figure}
+
+\newpage
+\subsection{Decoding Circuit Setup}
+\begin{enumerate}
+    \item Apply the inverse QFT to the copied qubits to decode the state.
+    \item Measure the qubits and record the results.
+\end{enumerate}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1.02\textwidth]{../qft_decode_circuit.png}
+    \caption{Quantum Fourier Transform Circuit for decoding}
+\end{figure}
 \newpage
 \section{Measurement Results and Analysis}
-The circuit is executed on the Qiskit Aer Simulator for 10000 shots, and the results obtained are shown in the figures below.
+The encoding and decoding circuits are executed on the Qiskit Aer Simulator for 2048 shots and also to obtain the bloch sphere representation of the quantum state, and the results obtained are shown in the figures below.
 
-% \begin{figure}[h!]
-%     \centering
-%     % Remove the \rule line below and uncomment the \includegraphics line to insert your image
-%     % \includegraphics[width=0.5\textwidth]{measurement_01.png}
-%     % \rule{0.5\textwidth}{0.3\textwidth} % This creates a placeholder box
-%     \caption{Measurement results for the quantum teleportation protocol}
-% \end{figure}
-The results show two clear groups, with \(000\!-\!011\) occurring much more frequently than \(100\!-\!111\) (~21.5\%), indicating Bob's final measurement is in state \(|0\rangle\).
+\begin{figure}[h!]
+    \centering
+    % Remove the \rule line below and uncomment the \includegraphics line to insert your image
+    \includegraphics[width=1.0\textwidth]{../input_bloch_vector.png}
+    % \rule{0.5\textwidth}{0.3\textwidth} % This creates a placeholder box
+    \caption{Bloch sphere representation of the input state}
+\end{figure}
 
-% \begin{figure}[h!]
-%     \centering
-%     % Remove the \rule line below and uncomment the \includegraphics line to insert your image
-%     % \includegraphics[width=0.5\textwidth]{receiver_measurement.png}
-%     % \rule{0.5\textwidth}{0.3\textwidth} % This creates a placeholder box
-%     \caption{Probabilities of Bob's final state}
-% \end{figure}
-The receiver measurement shows probabilities of approximately \(P(0)\approx 0.785\) and \(P(1)\approx 0.215\), indicating that Bob's teleported state is measured as \(|0\rangle\) in about 78.5\% of the shots and \(|1\rangle\) in about 21.5\% of the shots.
+\begin{figure}[h!]
+    \centering
+    % Remove the \rule line below and uncomment the \includegraphics line to insert your image
+    \includegraphics[width=1.0\textwidth]{../measurement_encoding.png}
+    % \rule{0.5\textwidth}{0.3\textwidth} % This creates a placeholder box
+    \caption{Measurement results of the encoded state}
+\end{figure}
+The measurement results show that the QFT encoding was successful in representing the original state in the combination of superposition states. 
 
-% \begin{figure}[h!]
-%     \centering
-%     % Remove the \rule line below and uncomment the \includegraphics line to insert your image
-%     % \includegraphics[width=0.5\textwidth]{psi_probs.png}
-%     % \rule{0.5\textwidth}{0.3\textwidth} % This creates a placeholder box
-%     \caption{Probabilities of the initial state $|\psi\rangle$}
-% \end{figure}
+\begin{figure}[h!]
+    \centering
+    % Remove the \rule line below and uncomment the \includegraphics line to insert your image
+    \includegraphics[width=1.0\textwidth]{../output_bloch_vector.png}
+    % \rule{0.5\textwidth}{0.3\textwidth} % This creates a placeholder box
+    \caption{Bloch sphere representation of the encoded state}
+\end{figure}
 \newpage
-The input-state measurement shows probabilities of approximately \(P(0)\approx 0.79\) and \(P(1)\approx 0.21\), indicating that the original \(|\psi\rangle\) state is measured as \(|0\rangle\) in about 79\% of the shots and \(|1\rangle\) in about 21\%.
+
+\begin{figure}[h!]
+    \centering
+    % Remove the \rule line below and uncomment the \includegraphics line to insert your image
+    \includegraphics[width=0.5\textwidth]{../measurement_decoding.png}
+    % \rule{0.5\textwidth}{0.3\textwidth} % This creates a placeholder box
+    \caption{Bloch sphere representation of the decoded state}
+\end{figure}
+The measurement results show that the inverse QFT decoding was successful in retrieving the original state from the encoded state, confirming the correctness of the QFT implementation.
 
 \section{Conclusion}
-The quantum teleportation protocol was successfully implemented. The visual and numerical results confirm that the arbitrary state \(|\psi\rangle\) was accurately transferred from the source qubit to the target qubit.
+The experiment successfully demonstrates the implementation of the Quantum Fourier Transform (QFT) using the Qiskit framework. The encoding and decoding processes were verified through measurement results, confirming that the original quantum state was accurately represented and retrieved.  
 
 \newpage
 \section{Appendix}
 \subsection{Python Code}
 \begin{minted}[fontsize=\small]{python}
-from qiskit import QuantumRegister, ClassicalRegister, QuantumCircuit
-from qiskit.quantum_info.states.random import random_statevector
-from qiskit.circuit.library import Initialize
-from qiskit.quantum_info import Statevector
-from qiskit.visualization import plot_histogram
-from qiskit_aer import AerSimulator
 import numpy as np
+from numpy import pi
+from qiskit import QuantumCircuit, transpile
+from qiskit.visualization import plot_bloch_multivector, plot_histogram
+from qiskit_aer import AerSimulator
+import matplotlib.pyplot as plt
 
-psi = QuantumRegister(1, "psi")
-cl_psi = ClassicalRegister(1, "cl_psi")
-bell = QuantumRegister(2, "bell")
-cl_bell_01 = ClassicalRegister(1, "cl_bell_01")
-cl_bell_02 = ClassicalRegister(1, "cl_bell_02")
-qc = QuantumCircuit(psi, cl_psi, bell, cl_bell_01, cl_bell_02)
-qc.draw("mpl")
+def qft_rotations(circuit, n):
+    if n == 0:
+        return circuit
 
-random_vector = random_statevector(2)
-probs = np.abs(random_vector)**2
-probs = {0: probs[0], 1: probs[1]}
-state = Initialize(random_vector)
-qc.append(state, psi)
+    n -= 1
+    circuit.h(n)
+    for qubit in range(n):
+        circuit.cp(pi / 2 ** (n - qubit), qubit, n)
 
-qc.h(bell[0])
-qc.cx(bell[0], bell[1])
-qc.barrier()
-qc.cx(psi, bell[0])
-qc.h(psi)
-qc.barrier()
-qt_sv = Statevector.from_circuit(qc)
-qc.measure(bell[0], cl_bell_01)
-qc.measure(psi, cl_psi)
-qc.barrier()
+    qft_rotations(circuit, n)
 
-with qc.if_test((cl_psi, True)):
-qc.z(bell[1])
+def swap_registers(circuit, n):
+    for qubit in range(n // 2):
+        circuit.swap(qubit, n - qubit - 1)
+    return circuit
 
-with qc.if_test((cl_bell_01, True)):
-qc.x(bell[1])
-qc.measure(bell[1], cl_bell_02)
-qc.draw("mpl")
+def qft(circuit, n):
+    qft_rotations(circuit, n)
+    swap_registers(circuit, n)
+    return circuit
+
+n = 4
+
+qc = QuantumCircuit(n)
+qft_rotations(qc, n)
+fig = qc.draw(output='mpl')
+plt.show()
+
+qc = QuantumCircuit(n)
+qft(qc, n)
+fig = qc.draw(output='mpl')
+plt.show()
+
+bits = [0, 1, 1, 0]
+qc = QuantumCircuit(n)
+for i, bit in enumerate(bits):
+    if bit:
+        qc.x(i)
+fig = qc.draw(output='mpl')
+plt.show()
 
 sim = AerSimulator()
-result = sim.run(qc, shots = 1000).result()
+qc_init = qc.copy()
+qc_init.save_statevector()
+state_vector = sim.run(transpile(qc_init, sim)).result().get_statevector()
+plot_bloch_multivector(state_vector)
+plt.show()
 
-plot_histogram(result.get_counts())
+qft(qc, n)
+fig = qc.draw(output='mpl')
+plt.show()
 
-from collections import Counter
-receiver_count = Counter()
+sim = AerSimulator()
+qc_state = qc.copy()
+qc_state.save_statevector()
+statevector = sim.run(transpile(qc_state, sim)).result().get_statevector()
 
-for k, v in result.get_counts().items():
-receiver_count[k[0]] += v/1000
+plot_bloch_multivector(statevector)
+plt.show()
 
-plot_histogram(receiver_count)
-plot_histogram(probs)
+qc_qft_measure = qc.copy()
+qc_qft_measure.measure_all()
+job = sim.run(transpile(qc_qft_measure, sim), shots=2048)
+result = job.result().get_counts()
+plot_histogram(result, figsize=(15, 6))
+plt.show()
+
+inverse_qft = qft(QuantumCircuit(n), n).inverse()
+qc.compose(inverse_qft, inplace=True)
+
+qc.decompose()
+fig = qc.draw(output='mpl')
+plt.show()
+
+qc_final = qc.copy()
+qc_final.measure_all()
+job1 = sim.run(transpile(qc_final, sim), shots=2048)
+result1 = job1.result().get_counts()
+plot_histogram(result1, figsize=(7, 6))
+plt.show()
 \end{minted}
 \end{document}
